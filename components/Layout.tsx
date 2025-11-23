@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useAuth } from '../authContext';
 import { useTheme } from '../themeContext';
@@ -115,7 +116,9 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
              <button onClick={toggleTheme} className="text-slate-600 dark:text-slate-400">
                 {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
              </button>
-             <Bell size={20} className="text-slate-600 dark:text-slate-400" />
+             <button onClick={() => navigate('/user/notifications')} className="text-slate-600 dark:text-slate-400">
+                <Bell size={20} />
+             </button>
              <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="text-slate-600 dark:text-slate-400">
                  {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
              </button>

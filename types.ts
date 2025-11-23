@@ -1,3 +1,4 @@
+
 export type Role = 'admin' | 'user';
 
 export interface User {
@@ -34,6 +35,7 @@ export interface DeliveryDay {
 
 export interface Bill {
   id: string;
+  userId: string;
   month: string; // YYYY-MM
   amount: number;
   status: 'paid' | 'pending';
@@ -42,6 +44,7 @@ export interface Bill {
 
 export interface Notification {
   id: string;
+  userId?: string;
   title: string;
   message: string;
   date: string;

@@ -1,11 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { User, Role } from './types';
-import { MOCK_USERS, CURRENT_USER_KEY } from './constants';
+import { CURRENT_USER_KEY } from './constants';
+import { DbService } from './services/mockService';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, role: Role) => boolean;
+  login: (email: string, role: Role) => Promise<boolean>;
   logout: () => void;
+  updateProfile: (user: User) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -16,6 +18,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Initialize DB
+    DbService.init();
+
     // Check local storage on mount
     const storedUser = localStorage.getItem(CURRENT_USER_KEY);
     if (storedUser) {
@@ -24,23 +29,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsLoading(false);
   }, []);
 
-  const login = (email: string, role: Role): boolean => {
-    // Mock login logic
-    const foundUser = MOCK_USERS.find(u => u.email === email && u.role === role);
+  const login = async (email: string, role: Role): Promise<boolean> => {
+    const foundUser = await DbService.authenticate(email, role);
+    
     if (foundUser) {
       setUser(foundUser);
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(foundUser));
       return true;
-    }
-    
-    // Fallback for demo if using generic credentials
-    if (email === 'demo') {
-        const demoUser = MOCK_USERS.find(u => u.role === role);
-        if (demoUser) {
-            setUser(demoUser);
-            localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(demoUser));
-            return true;
-        }
     }
     
     return false;
@@ -51,8 +46,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     localStorage.removeItem(CURRENT_USER_KEY);
   };
 
+  const updateProfile = async (updatedUser: User) => {
+      await DbService.updateUser(updatedUser);
+      setUser(updatedUser);
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(updatedUser));
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, updateProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
